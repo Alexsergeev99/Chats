@@ -2,8 +2,12 @@ import ChatService.addChat
 import ChatService.createMessage
 import ChatService.editMessage
 import ChatService.getChats
+import ChatService.getCountById
+import ChatService.getLastMessage
+//import ChatService.getLastMessages
 import ChatService.getMessagesById
 import ChatService.getNotReadChats
+import ChatService.getUnreadChatsCount
 //import ChatService.getNotReadMessages
 import ChatService.readMessages
 
@@ -36,6 +40,7 @@ object ChatService {
     fun addChat(title: String?, message: String): Int {
         mapChats[++chatId] = Chats(chatId = chatId, title = title)
         createMessage(chatId = chatId, message = message)
+        listReads.remove(mapChats[chatId])
         return chatId
     }
 
@@ -85,7 +90,7 @@ object ChatService {
         return mapChats
     }
 
-    fun getById(chatId: Int): Chats {
+    fun getById(chatId: Int): Chats? {
         return mapChats.getValue(chatId)
     }
 
@@ -94,14 +99,36 @@ object ChatService {
         return chat.messages
     }
 
+    fun getCountById(chatId: Int, messageNumbers: Int): MutableList<MessageService>? {
+        val chat = mapChats[chatId] ?: return null
+        val messagesList = chat.messages.values.toList()
+        val lastMessagesList = messagesList.takeLast(messageNumbers)
+//        return chat.messages[lastMessagesList.onEach { it.notReadMessage = false }]
+        val finalList = lastMessagesList.onEach { it.notReadMessage = false }.toMutableList()
+        return finalList
+    }
+
     fun getNotReadChats(): MutableList<Chats?> {
 //        val chat = mapChats[chatId] ?: return null
 //        val chat = messages.filter { chat.messages[chatId]?.notReadMessage == true }
 //        return b[chatId]
        return  listReads
     }
+//    fun getNotReadChats(): List<Chats> {
+//        return mapChats.values.map { chat: Chats ->
+//            chat.copy(messages = chat.messages.filter { it.value.notReadMessage }.toMutableMap())
+//        }
+//    }
 
+    fun getUnreadChatsCount(): Int {
+        val count = getNotReadChats().size
+        return count
+    }
 
+fun getLastMessage(): List<String?> {
+    val a = mapChats.values.toMutableList()
+    return a.map { it.messages.values.last().message ?: "Нет сообщений" }
+}
 
 }
 
@@ -110,6 +137,7 @@ fun main() {
     addChat("Alex Sergeev","hey bro")
     createMessage(1, "wow")
     readMessages(1, 1)
+    readMessages(1, 2)
 //    addNote("yui", "yui")
 //    createComment(2, "nope")
 //    editNote(1, "bye", "bye")
@@ -127,4 +155,7 @@ fun main() {
     println(getMessagesById(1))
     println(getChats())
     println(getNotReadChats())
+    println(getUnreadChatsCount())
+    println(getCountById(1, 2))
+    println(getLastMessage())
 }
