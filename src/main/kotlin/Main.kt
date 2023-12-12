@@ -103,9 +103,11 @@ object ChatService {
         val chat = mapChats[chatId] ?: return null
         val messagesList = chat.messages.values.asSequence()
             .toList()
-        .takeLast(messageNumbers)
-        .onEach { it.notReadMessage = false }.toMutableList()
-        return messagesList
+            .asReversed()
+            .take(messageNumbers)
+            .onEach { it.notReadMessage = false }
+            .toMutableList()
+            return messagesList
     }
 
     fun getNotReadChats(): List<Chats> =
@@ -128,8 +130,8 @@ fun main() {
 
     addChat("Alex Sergeev","hey bro")
     createMessage(1, "wow")
-    readMessages(1, 1)
-    readMessages(1, 2)
+//    readMessages(1, 1)
+//    readMessages(1, 2)
 //    addNote("yui", "yui")
 //    createComment(2, "nope")
 //    editNote(1, "bye", "bye")
