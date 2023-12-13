@@ -101,9 +101,10 @@ object ChatService {
 
     fun getCountById(chatId: Int, messageNumbers: Int): MutableList<MessageService>? {
         val chat = mapChats[chatId] ?: return null
-        val messagesList = chat.messages.values.asSequence()
+        val messagesList = chat.messages.values
             .toList()
             .asReversed()
+            .asSequence()
             .take(messageNumbers)
             .onEach { it.notReadMessage = false }
             .toMutableList()
@@ -130,8 +131,8 @@ fun main() {
 
     addChat("Alex Sergeev","hey bro")
     createMessage(1, "wow")
-//    readMessages(1, 1)
-//    readMessages(1, 2)
+    readMessages(1, 1)
+    readMessages(1, 2)
 //    addNote("yui", "yui")
 //    createComment(2, "nope")
 //    editNote(1, "bye", "bye")
