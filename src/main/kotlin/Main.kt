@@ -101,34 +101,29 @@ object ChatService {
 
     fun getCountById(chatId: Int, messageNumbers: Int): MutableList<MessageService>? {
         val chat = mapChats[chatId] ?: return null
-        val messagesList = chat.messages.values.toList()
-        val lastMessagesList = messagesList.takeLast(messageNumbers)
-//        return chat.messages[lastMessagesList.onEach { it.notReadMessage = false }]
-        val finalList = lastMessagesList.onEach { it.notReadMessage = false }.toMutableList()
-        return finalList
+        val messagesList = chat.messages.values
+            .toList()
+            .asReversed()
+            .asSequence()
+            .take(messageNumbers)
+            .onEach { it.notReadMessage = false }
+            .toMutableList()
+            return messagesList
     }
 
-    fun getNotReadChats(): MutableList<Chats?> {
-//        val chat = mapChats[chatId] ?: return null
-//        val chat = messages.filter { chat.messages[chatId]?.notReadMessage == true }
-//        return b[chatId]
-       return  listReads
-    }
-//    fun getNotReadChats(): List<Chats> {
-//        return mapChats.values.map { chat: Chats ->
-//            chat.copy(messages = chat.messages.filter { it.value.notReadMessage }.toMutableMap())
-//        }
-//    }
+    fun getNotReadChats(): List<Chats> =
+        mapChats.values.asSequence()
+            .map { chat: Chats ->
+            chat.copy(messages = chat.messages.filter { it.value.notReadMessage }
+                .toMutableMap()) }
+            .filter { it.messages.isNotEmpty() }
+            .toList()
 
-    fun getUnreadChatsCount(): Int {
-        val count = getNotReadChats().size
-        return count
-    }
+    fun getUnreadChatsCount(): Int = getNotReadChats().size
 
-fun getLastMessage(): List<String?> {
-    val a = mapChats.values.toMutableList()
-    return a.map { it.messages.values.last().message ?: "Нет сообщений" }
-}
+fun getLastMessage(): List<String?> = mapChats.values.asSequence()
+    .toMutableList()
+    .map { it.messages.values.lastOrNull()?.message ?: "Нет сообщений" }
 
 }
 
